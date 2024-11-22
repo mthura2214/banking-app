@@ -25,6 +25,7 @@ const App = () => {
 
   const validatePhoneNumber = (phoneNumber) => /^[0-9]{10}$/.test(phoneNumber);
   const validateIdNumber = (idNumber) => /^[0-9]{13}$/.test(idNumber);
+  const validateAmount = (amount) => parseFloat(amount) > 0;
 
   const handleLogin = async () => {
     setLoading(true);
@@ -102,6 +103,33 @@ const App = () => {
 
   const handleTransaction = async () => {
     setLoading(true);
+    let errors = {};
+
+    if (transaction.type === 'deposit') {
+      if (!validateAmount(transaction.amount)) {
+        errors.amount = 'Deposit amount must be greater than 0';
+      }
+    } else if (transaction.type === 'withdraw') {
+      if (!validateAmount(transaction.amount)) {
+        errors.amount = 'Withdraw amount must be greater than 0';
+      } else if (parseFloat(transaction.amount) > dashboardData.balance) {
+        errors.amount = 'Insufficient balance for this withdrawal';
+      }
+    } else if (transaction.type === 'transfer') {
+      if (!validateAmount(transferData.transferAmount)) {
+        errors.transferAmount = 'Transfer amount must be greater than 0';
+      }
+      if (!transferData.recipientName.trim()) {
+        errors.recipientName = 'Recipient name cannot be empty';
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setErrorMessages(errors);
+      setLoading(false);
+      return;
+    }
+
     try {
       if (transaction.type === 'transfer') {
         const response = await axios.post('http://127.0.0.1:5000/transfer', {
@@ -230,58 +258,55 @@ const App = () => {
         <div className="dashboard">
           <h2>Dashboard</h2>
           <p>Account Balance: R {dashboardData.balance}</p>
-          <h3>Make a Transaction</h3>
           <select
-            onChange={(e) => setTransaction({ ...transaction, type: e.target.value })}
             value={transaction.type}
+            onChange={(e) => setTransaction({ ...transaction, type: e.target.value })}
           >
             <option value="">Select Transaction</option>
             <option value="deposit">Deposit</option>
             <option value="withdraw">Withdraw</option>
             <option value="transfer">Transfer</option>
           </select>
+
           {transaction.type === 'transfer' ? (
             <div>
               <input
                 type="text"
                 placeholder="Recipient Name"
                 value={transferData.recipientName}
-                onChange={(e) =>
-                  setTransferData({ ...transferData, recipientName: e.target.value })
-                }
+                onChange={(e) => setTransferData({ ...transferData, recipientName: e.target.value })}
               />
+              {errorMessages.recipientName && <p style={{ color: 'red' }}>{errorMessages.recipientName}</p>}
               <input
                 type="number"
-                placeholder="Transfer Amount"
+                placeholder="Amount to transfer"
                 value={transferData.transferAmount}
-                onChange={(e) =>
-                  setTransferData({ ...transferData, transferAmount: e.target.value })
-                }
+                onChange={(e) => setTransferData({ ...transferData, transferAmount: e.target.value })}
               />
+              {errorMessages.transferAmount && <p style={{ color: 'red' }}>{errorMessages.transferAmount}</p>}
             </div>
-          ) : (
-            <input
-              type="number"
-              placeholder="Amount"
-              value={transaction.amount}
-              onChange={(e) => setTransaction({ ...transaction, amount: e.target.value })}
-            />
+          ) : transaction.type && (
+            <div>
+              <input
+                type="number"
+                placeholder="Amount"
+                value={transaction.amount}
+                onChange={(e) => setTransaction({ ...transaction, amount: e.target.value })}
+              />
+              {errorMessages.amount && <p style={{ color: 'red' }}>{errorMessages.amount}</p>}
+            </div>
           )}
           <button onClick={handleTransaction}>Submit</button>
           <button onClick={toggleTransactionHistory}>
-            {showTransactionHistory ? 'Hide' : 'Show'} Transaction History
+            {showTransactionHistory ? 'Hide Transactions' : 'Show Transactions'}
           </button>
-          {showTransactionHistory && (
+          {showTransactionHistory && dashboardData.transactions && (
             <ul>
-              {dashboardData.transactions && dashboardData.transactions.length > 0 ? (
-                dashboardData.transactions.map((t, index) => (
-                  <li key={index}>
-                    {t.type}: R {t.amount} on {t.date}
-                  </li>
-                ))
-              ) : (
-                <li>No transactions found</li>
-              )}
+              {dashboardData.transactions.map((txn, index) => (
+                <li key={index}>
+                  {txn.type} of R {txn.amount} on {txn.date}
+                </li>
+              ))}
             </ul>
           )}
           <button onClick={handleLogout}>Logout</button>

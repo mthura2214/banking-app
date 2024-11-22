@@ -92,7 +92,11 @@ def deposit():
     data = request.json
     account_number = data.get('account_number')
     amount = data.get('amount')
- 
+    
+    # Check if amount is valid
+    if not isinstance(amount, (int, float)) or amount <= 0:
+        return jsonify({"error": "Deposit amount must be a positive number"}), 400
+
     for file in os.listdir():
         if not file.endswith(".txt"):
             continue
@@ -101,16 +105,20 @@ def deposit():
             user_data['balance'] += amount
             write_user_data(file[:-4], user_data)
             return jsonify({"message": f"Deposited {amount} successfully"}), 200
- 
+
     return jsonify({"error": "Account not found"}), 404
- 
- 
+
+
 @app.route('/withdraw', methods=['POST'])
 def withdraw():
     data = request.json
     account_number = data.get('account_number')
     amount = data.get('amount')
- 
+
+    # Check if amount is valid
+    if not isinstance(amount, (int, float)) or amount <= 0:
+        return jsonify({"error": "Withdrawal amount must be a positive number"}), 400
+
     for file in os.listdir():
         if not file.endswith(".txt"):
             continue
@@ -118,12 +126,13 @@ def withdraw():
         if user_data and user_data['account_number'] == account_number:
             if user_data['balance'] < amount:
                 return jsonify({"error": "Insufficient funds"}), 400
- 
+
             user_data['balance'] -= amount
             write_user_data(file[:-4], user_data)
             return jsonify({"message": f"Withdrew {amount} successfully"}), 200
- 
+
     return jsonify({"error": "Account not found"}), 404
+
  
 @app.route('/transfer', methods=['POST'])
 def transfer():

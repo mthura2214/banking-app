@@ -1,0 +1,7 @@
+Name: sive
+Surname: nathi
+Phone Number: 0897653424
+ID Number: 9010275563088
+Account Number: 412771
+Password: 54321
+Balance: 200.0
