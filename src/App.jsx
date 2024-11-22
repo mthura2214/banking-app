@@ -128,8 +128,28 @@ const App = () => {
     }
   };
 
-  const toggleTransactionHistory = () => {
-    setShowTransactionHistory(!showTransactionHistory);
+  const toggleTransactionHistory = async () => {
+    if (showTransactionHistory) {
+      setShowTransactionHistory(false);
+    } else {
+      setLoading(true);
+      try {
+        const response = await axios.get(`http://127.0.0.1:5000/transaction_history/${dashboardData.accountNumber}`);
+        if (response?.data?.transactions) {
+          setDashboardData({
+            ...dashboardData,
+            transactions: response.data.transactions,
+          });
+          setShowTransactionHistory(true);
+        } else {
+          alert('Failed to load transaction history');
+        }
+      } catch (error) {
+        alert(error.response?.data?.error || 'An error occurred while fetching transaction history');
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   const handleLogout = () => {
@@ -187,8 +207,6 @@ const App = () => {
           {errorMessages.identityNumber && <p style={{ color: 'red' }}>{errorMessages.identityNumber}</p>}
           <button onClick={handleRegistration}>Register</button>
           <p onClick={() => setIsRegistering(false)}>Already have an account? Login here</p>
-          
-
         </div>
       ) : !dashboardData ? (
         <div className="login">
@@ -250,19 +268,23 @@ const App = () => {
             />
           )}
           <button onClick={handleTransaction}>Submit</button>
-          <button onClick={handleLogout}>Logout</button>
-          <h3 onClick={toggleTransactionHistory} style={{ cursor: 'pointer', color:'#202020'}}>
-            Transaction History
-          </h3>
+          <button onClick={toggleTransactionHistory}>
+            {showTransactionHistory ? 'Hide' : 'Show'} Transaction History
+          </button>
           {showTransactionHistory && (
             <ul>
-              {dashboardData.transactions.map((t, index) => (
-                <li key={index}>
-                  {t.type}: R {t.amount} on {t.date}
-                </li>
-              ))}
+              {dashboardData.transactions && dashboardData.transactions.length > 0 ? (
+                dashboardData.transactions.map((t, index) => (
+                  <li key={index}>
+                    {t.type}: R {t.amount} on {t.date}
+                  </li>
+                ))
+              ) : (
+                <li>No transactions found</li>
+              )}
             </ul>
           )}
+          <button onClick={handleLogout}>Logout</button>
         </div>
       )}
     </div>

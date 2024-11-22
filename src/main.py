@@ -6,8 +6,7 @@ import random
 app = Flask(__name__)
 CORS(app)
  
- 
-# Helper function to read user data
+
 def read_user_data(username):
     try:
         with open(f"{username}.txt", "r") as file:
@@ -25,7 +24,6 @@ def read_user_data(username):
         return None
  
  
-# Helper function to write user data to a file
 def write_user_data(username, data):
     with open(f"{username}.txt", "w") as file:
         file.write(f"Name: {data['name']}\n")
@@ -52,13 +50,12 @@ def register():
         "name": data.get("name"),
         "surname": data.get("surname"),
         "phone_number": data.get("phoneNumber"),
-        "id_number": data.get("identityNumber"),  # Placeholder for an ID number
+        "id_number": data.get("identityNumber"),  
         "account_number": account_number,
         "password": data.get("password"),
         "balance": 0,
     }
  
-    # Save the user data
     write_user_data(username, user_data)
     return jsonify({"message": "Account created successfully", "account_number": account_number}), 201
  
@@ -132,13 +129,12 @@ def withdraw():
 def transfer():
     data = request.json
     source_account_number = data.get('source_account_number')
-    recipient_name = data.get('recipient_name')  # Updated key from React App
+    recipient_name = data.get('recipient_name')  
     amount = data.get('amount')
  
-    # Find the source and destination account data
     source_user_data = None
     destination_user_data = None
-    destination_username = None  # Track the file name for destination account
+    destination_username = None 
  
     for file in os.listdir():
         if not file.endswith(".txt"):
@@ -149,19 +145,17 @@ def transfer():
             source_user_data = user_data
         elif user_data['name'] == recipient_name:
             destination_user_data = user_data
-            destination_username = file[:-4]  # Extract the username
+            destination_username = file[:-4]  
  
-    # Handle missing accounts
     if not source_user_data:
         return jsonify({"error": "Source account not found"}), 404
     if not destination_user_data:
         return jsonify({"error": "Recipient account not found"}), 404
  
-    # Check for sufficient funds
     if source_user_data['balance'] < amount:
         return jsonify({"error": "Insufficient funds"}), 400
  
-    # Perform the transfer
+
     source_user_data['balance'] -= amount
     destination_user_data['balance'] += amount
  
