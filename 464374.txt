@@ -4,4 +4,4 @@ Phone Number: 0611901234
 ID Number: 12345
 Account Number: 464374
 Password: test
-Balance: 7270.0
+Balance: 7000.0

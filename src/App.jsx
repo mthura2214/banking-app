@@ -158,24 +158,27 @@ const App = () => {
 
   const toggleTransactionHistory = async () => {
     if (showTransactionHistory) {
-      setShowTransactionHistory(false);
+      setShowTransactionHistory(false); // Hide transactions if already showing
     } else {
-      setLoading(true);
+      setLoading(true); // Show loading indicator
       try {
+        // Fetch transaction history from the server
         const response = await axios.get(`http://127.0.0.1:5000/transaction_history/${dashboardData.accountNumber}`);
+        
+        // If the response contains transaction data, display it
         if (response?.data?.transactions) {
           setDashboardData({
             ...dashboardData,
-            transactions: response.data.transactions,
+            transactions: response.data.transactions, 
           });
-          setShowTransactionHistory(true);
+          setShowTransactionHistory(true); 
         } else {
-          alert('Failed to load transaction history');
+          alert('Failed to load transaction history'); 
         }
       } catch (error) {
         alert(error.response?.data?.error || 'An error occurred while fetching transaction history');
       } finally {
-        setLoading(false);
+        setLoading(false); 
       }
     }
   };
