@@ -1,0 +1,190 @@
+/* General App Styling */
+.app {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+  background-image: linear-gradient(
+      rgba(4, 9, 30, 0.7), rgba(4, 9, 30, 0.7)
+    ),
+    url(assets/bank-app.jpg);
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 1.5s ease-in-out;
+}
+p{
+  color:#007bff;
+  cursor: pointer;
+}
+
+
+/* Login and Register Form Styling */
+.login,
+.register {
+  background-color:#fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 40px;
+  box-shadow: 0px 10px 15px #f5f0f033, 0px -5px 10px rgba(255, 255, 255, 0.1);
+  width: 300px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+h2{
+  padding: 0px;
+  color:#0056b3;
+}
+
+.login:hover,
+.register:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.3), 0px -5px 15px rgba(255, 255, 255, 0.2);
+}
+
+.login input,
+.register input {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.3s ease;
+}
+
+.login input:focus,
+.register input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.login button,
+.register button {
+  padding: 10px 20px;
+  color: white;
+  width: 100%;
+  margin: 10px 0px;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.for-me button{
+  background-color: #007bff;
+  width: 30%;
+  border-radius: 20%;
+}
+
+.login button:hover,
+.register button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.toggle-link {
+  padding-top: 30px;
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+
+.toggle-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+h1{
+  color: #ffff;
+}
+
+/* Dashboard Styling */
+.dashboard {
+  background-image: url("./assets/think.jpg");
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.2), 0px -5px 10px rgba(255, 255, 255, 0.1);
+  width: 600px;
+  height: 600px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.3), 0px -5px 15px rgba(255, 255, 255, 0.2);
+}
+
+.dashboard p {
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+.dashboard select,
+.dashboard input {
+  width: 90%;
+  padding: 10px;
+  margin: 20px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard select:focus,
+.dashboard input:focus {
+  border-color: #28a745;
+  box-shadow: 0px 0px 5px rgba(40, 167, 69, 0.5);
+  outline: none;
+}
+
+.dashboard button {
+  gap: 50px;
+  padding: 10px 20px;
+  margin-left: 10px;
+  color: white;
+  background-color: #28a745;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.dashboard button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Transaction History Styling */
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul li {
+  background-color: #f9f9f9;
+  margin: 5px 0;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+ul li:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

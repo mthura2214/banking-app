@@ -1,0 +1,7 @@
+Name: Lindokuhle
+Surname: Nongwe
+Phone Number: 0638201155
+ID Number: 0001035536083
+Account Number: 983799
+Password: 553655555
+Balance: 5100.0

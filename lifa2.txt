@@ -1,0 +1,7 @@
+Name: Lifa
+Surname: Gomomo
+Phone Number: 0611901234
+ID Number: 9765437654368
+Account Number: 801545
+Password: 12345
+Balance: 200.0
