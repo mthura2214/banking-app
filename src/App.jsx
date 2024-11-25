@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import './App.css';
@@ -116,7 +117,7 @@ const App = () => {
         errors.amount = 'Insufficient balance for this withdrawal';
       }
     } else if (transaction.type === 'transfer') {
-      if (!validateAmount(transferData.transferAmount)) {
+      if (!validateAmount(transaction.amount)) {
         errors.transferAmount = 'Transfer amount must be greater than 0';
       }
       if (!transferData.recipientName.trim()) {
@@ -158,30 +159,28 @@ const App = () => {
 
   const toggleTransactionHistory = async () => {
     if (showTransactionHistory) {
-      setShowTransactionHistory(false); // Hide transactions if already showing
+        setShowTransactionHistory(false);
     } else {
-      setLoading(true); // Show loading indicator
-      try {
-        // Fetch transaction history from the server
-        const response = await axios.get(`http://127.0.0.1:5000/transaction_history/${dashboardData.accountNumber}`);
-        
-        // If the response contains transaction data, display it
-        if (response?.data?.transactions) {
-          setDashboardData({
-            ...dashboardData,
-            transactions: response.data.transactions, 
-          });
-          setShowTransactionHistory(true); 
-        } else {
-          alert('Failed to load transaction history'); 
+        setLoading(true);
+        try {
+            const response = await axios.get(`http://127.0.0.1:5000/transaction_history/${dashboardData.accountNumber}`);
+            if (response.data.transactions) {
+                setDashboardData({
+                    ...dashboardData,
+                    transactions: response.data.transactions, 
+                });
+                setShowTransactionHistory(true);
+            } else {
+                alert('No transactions found');
+            }
+        } catch (error) {
+            alert(error.response?.data?.error || 'Error fetching transaction history');
+        } finally {
+            setLoading(false);
         }
-      } catch (error) {
-        alert(error.response?.data?.error || 'An error occurred while fetching transaction history');
-      } finally {
-        setLoading(false); 
-      }
     }
-  };
+};
+
 
   const handleLogout = () => {
     setDashboardData(null);
@@ -189,9 +188,12 @@ const App = () => {
     setIsRegistering(false);
   };
 
+
+
+
   return (
     <div className="app">
-      <h1>Welcome, Emtee SwiftBank</h1>
+      <h1>Welcome, To SwiftBank Web App</h1>
 
       {loading && <p>Loading...</p>}
 
@@ -270,47 +272,44 @@ const App = () => {
             <option value="withdraw">Withdraw</option>
             <option value="transfer">Transfer</option>
           </select>
-
-          {transaction.type === 'transfer' ? (
+          {transaction.type && (
             <div>
               <input
                 type="text"
-                placeholder="Recipient Name"
-                value={transferData.recipientName}
-                onChange={(e) => setTransferData({ ...transferData, recipientName: e.target.value })}
-              />
-              {errorMessages.recipientName && <p style={{ color: 'red' }}>{errorMessages.recipientName}</p>}
-              <input
-                type="number"
-                placeholder="Amount to transfer"
-                value={transferData.transferAmount}
-                onChange={(e) => setTransferData({ ...transferData, transferAmount: e.target.value })}
-              />
-              {errorMessages.transferAmount && <p style={{ color: 'red' }}>{errorMessages.transferAmount}</p>}
-            </div>
-          ) : transaction.type && (
-            <div>
-              <input
-                type="number"
                 placeholder="Amount"
                 value={transaction.amount}
                 onChange={(e) => setTransaction({ ...transaction, amount: e.target.value })}
               />
+              {transaction.type === 'transfer' && (
+                <input
+                type="text"
+                placeholder="Recipient Name"
+                value={transferData.recipientName}
+                onChange={(e) => setTransferData({ ...transferData, recipientName: e.target.value })}
+                  
+                />
+                
+              )}
+              <button onClick={handleTransaction}>Submit</button>
               {errorMessages.amount && <p style={{ color: 'red' }}>{errorMessages.amount}</p>}
+              {errorMessages.transferAmount && (
+                <p style={{ color: 'red' }}>{errorMessages.transferAmount}</p>
+              )}
             </div>
           )}
-          <button onClick={handleTransaction}>Submit</button>
+
           <button onClick={toggleTransactionHistory}>
-            {showTransactionHistory ? 'Hide Transactions' : 'Show Transactions'}
+            {showTransactionHistory ? 'Hide Transactions' : 'Show Transaction History'}
           </button>
-          {showTransactionHistory && dashboardData.transactions && (
-            <ul>
-              {dashboardData.transactions.map((txn, index) => (
-                <li key={index}>
-                  {txn.type} of R {txn.amount} on {txn.date}
-                </li>
-              ))}
-            </ul>
+          {showTransactionHistory && (
+            <div>
+              <h3>Transaction History</h3>
+              <ul>
+                {dashboardData.transactions?.map((transaction, index) => (
+                  <li key={index}>{transaction}</li>
+                ))}
+              </ul>
+            </div>
           )}
           <button onClick={handleLogout}>Logout</button>
         </div>
