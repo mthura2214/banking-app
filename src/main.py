@@ -7,6 +7,7 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
+
 def read_user_data(username):
     try:
         with open(f"{username}.txt", "r") as file:
@@ -136,25 +137,33 @@ def withdraw():
     return jsonify({"error": "Account not found"}), 404
 
 @app.route('/transfer', methods=['POST'])
-def transfer(self, account_number, amount):
-        """Transfer funds to another account"""
-        if not self.logged_in_user:
-            return False, "Please login first."
- 
-        if account_number not in self.users:
-            return False, "Recipient not found."
- 
-        if amount <= 0:
-            return False, "Amount should be greater than 0."
- 
-        if amount > self.logged_in_user["balance"]:
-            return False, "Insufficient funds."
- 
-        self.logged_in_user["balance"] -= amount
-        self.users[account_number]["balance"] += amount
-        self.save_transaction("Transfer", amount, account_number)
-        return True, f"Transferred {amount} to account {account_number}. Your new balance is: {self.logged_in_user['balance']}."
- 
+def transfer():
+    data = request.get_json()
+    account_number = data.get('account_number')
+    amount = float(data.get('amount', 0))  
+    _account_number = data.get('recipient_account_number')  
+    if not self.logged_in_user:
+        return jsonify({"error": "Please login first."}), 400
+
+    if recipient_account_number not in self.users:
+        return jsonify({"error": "Recipient account number not found."}), 404
+
+    if amount <= 0: 
+        return jsonify({"error": "Amount must be a positive number."}), 400
+
+    if amount > self.logged_in_user["balance"]:
+        return jsonify({"error": "Insufficient funds."}), 400
+    self.logged_in_user['balance'] -= amount
+    recipient_user = self.users[recipient_account_number]
+    recipient_user['balance'] += amount
+
+  
+    write_user_data(file[:-4], self.users)
+    log_transaction(file[:-4], f"Transferred {amount} to account number {recipient_account_number}")
+
+    return jsonify({"message": f"Transferred {amount} to account number {recipient_account_number} successfully"}), 200
+
+
 def log_transaction(username, transaction_details):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(f"{username}_transactions.txt", "a") as file:

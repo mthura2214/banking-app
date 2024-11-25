@@ -17,7 +17,7 @@ const App = () => {
   const [transaction, setTransaction] = useState({ type: '', amount: '' });
   const [transferData, setTransferData] = useState({
     recipientName: '',
-    transferAmount: '',
+    transferAmount: 0,
   });
   const [isRegistering, setIsRegistering] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -102,60 +102,66 @@ const App = () => {
     }
   };
 
+
   const handleTransaction = async () => {
     setLoading(true);
     let errors = {};
+    const parsedAmount = parseFloat(transaction.amount);
+    const parsedTransferAmount = parseFloat(transferData.transferAmount);  
 
-    if (transaction.type === 'deposit') {
-      if (!validateAmount(transaction.amount)) {
-        errors.amount = 'Deposit amount must be greater than 0';
-      }
+    console.log('Parsed Transfer Amount:', parsedTransferAmount);
+    console.log('Parsed Amount:', parsedAmount);
+
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+        errors.amount = 'Amount must be a positive number';
     } else if (transaction.type === 'withdraw') {
-      if (!validateAmount(transaction.amount)) {
-        errors.amount = 'Withdraw amount must be greater than 0';
-      } else if (parseFloat(transaction.amount) > dashboardData.balance) {
-        errors.amount = 'Insufficient balance for this withdrawal';
-      }
+        if (parsedAmount > dashboardData.balance) {
+            errors.amount = 'Insufficient balance for this withdrawal';
+        }
     } else if (transaction.type === 'transfer') {
-      if (!validateAmount(transaction.amount)) {
-        errors.transferAmount = 'Transfer amount must be greater than 0';
-      }
-      if (!transferData.recipientName.trim()) {
-        errors.recipientName = 'Recipient name cannot be empty';
-      }
+        if (parsedAmount > dashboardData.balance) {
+            errors.amount = 'Insufficient balance for this transfer';
+        }
+        if (!transferData.recipientAccountNumber.trim()) {
+            errors.recipientAccountNumber = 'Recipient account number cannot be empty';
+        }
     }
 
     if (Object.keys(errors).length > 0) {
-      setErrorMessages(errors);
-      setLoading(false);
-      return;
+        setErrorMessages(errors);
+        setLoading(false);
+        return;
     }
 
     try {
-      if (transaction.type === 'transfer') {
-        const response = await axios.post('http://127.0.0.1:5000/transfer', {
-          source_account_number: dashboardData.accountNumber,
-          recipient_name: transferData.recipientName,
-          amount: parseFloat(transferData.transferAmount),
-        });
-        alert(response.data.message);
-      } else {
-        const response = await axios.post(`http://127.0.0.1:5000/${transaction.type}`, {
-          account_number: dashboardData.accountNumber,
-          amount: parseFloat(transaction.amount),
-        });
-        alert(response.data.message);
-      }
+        const transactionDataToSend = {
+            account_number: dashboardData.accountNumber,
+            amount: parsedAmount, 
+        };
 
-      fetchDashboard(dashboardData.accountNumber);
-      setTransaction({ type: '', amount: '' });
-      setTransferData({ recipientName: '', transferAmount: '' });
+        let response;
+        if (transaction.type === 'transfer') {
+            const transferDataToSend = {
+                account_number: dashboardData.accountNumber,
+                recipient_account_number: transferData.recipientAccountNumber, 
+            };
+            response = await axios.post('http://127.0.0.1:5000/transfer', transferDataToSend);
+        } else {
+            response = await axios.post(`http://127.0.0.1:5000/${transaction.type}`, transactionDataToSend);
+        }
+
+        alert(response.data.message);
+
+        fetchDashboard(dashboardData.accountNumber);
+        setTransaction({ type: '', amount: '' });
+        setTransferData({ recipientAccountNumber: '', transferAmount: 0 }); 
     } catch (error) {
-      alert(error.response?.data?.error || 'An error occurred during the transaction');
+        alert(error.response?.data?.error || 'An error occurred during the transaction');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
 
   const toggleTransactionHistory = async () => {
     if (showTransactionHistory) {
@@ -282,11 +288,10 @@ const App = () => {
               />
               {transaction.type === 'transfer' && (
                 <input
-                type="text"
-                placeholder="Recipient Name"
-                value={transferData.recipientName}
-                onChange={(e) => setTransferData({ ...transferData, recipientName: e.target.value })}
-                  
+                  type="text"
+                  placeholder="Recipient Account Number"
+                  value={transferData.recipientAccountNumber}
+                  onChange={(e) => setTransferData({ ...transferData, recipientAccountNumber: e.target.value })}
                 />
                 
               )}
