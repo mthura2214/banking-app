@@ -193,9 +193,7 @@ const App = () => {
     setLoginData({ username: '', password: '' });
     setIsRegistering(false);
   };
-
-
-
+/* npm install react-scripts --save*/
 
   return (
     <div className="app">
